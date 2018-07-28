@@ -104,8 +104,10 @@ app.post('/saveCatData', (req, res) => {
     });
 })
 
-/** Grab Category Data */
+/** Grab Category and Sub Category Data */
 app.get('/getCatData', (req, res) => {
+
+    /** Category */
     var sql = `SELECT * FROM master_category`;
     db.query(sql, (err, result) => {
         if(err){
@@ -141,7 +143,7 @@ app.get('/editcategory/:id', (req, res) => {
         }
     });
 })
-/** Update Product Data */
+/** Update Category Data */
 app.post('/updateCategory', (req, res) => {
     var id = req.body.id;
     var category_code = req.body.category_code;
@@ -149,6 +151,60 @@ app.post('/updateCategory', (req, res) => {
     var description = req.body.description;
 
     var queryUpdate = `UPDATE master_category SET category_code = "${category_code}", category_name = "${category_name}", description = "${description}" WHERE id = "${id}"`;
+    db.query(queryUpdate, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            var status = 'oke';
+            res.send(status);
+        }
+    });
+});
+
+
+/** Get Sub Category Data */
+app.get('/getSubCatData', (req, res) => {
+    var sql = `SELECT * FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    });
+})
+
+
+/** Get User Data */
+app.get('/getUsers', (req, res) => {
+    var sql = `SELECT * FROM users`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+/** Edit sub category data */
+app.get('/editsubcategory/:id', (req, res) => {
+    var sql = `SELECT * FROM master_subcategory INNER JOIN master_category ON master_category.id=master_subcategory.category_id WHERE subcatid = ${req.params.id}`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    });
+});
+/** Update Category Data */
+app.post('/updateSubCategory', (req, res) => {
+    var id = req.body.id;
+    var subcategory_name = req.body.subcategory_name;
+    var category_name = req.body.category_name;
+
+    var queryUpdate = `UPDATE master_subcategory SET subcategory_name = "${subcategory_name}", category_id = "${category_name}" WHERE subcatid = "${id}"`;
     db.query(queryUpdate, (err, result) => {
         if(err){
             throw err;
