@@ -47,7 +47,11 @@ app.post('/saveData', (req, res) => {
 
 });
 
-/** Grab all the data */
+/*******************************
+ ******** PRODUCT AREA *********
+ ******************************/
+
+/** Grab all the product data */
 app.get('/productlist', (req, res) => {
     var sql = `SELECT * FROM product`;
     db.query(sql, (err, result) => {
@@ -88,6 +92,11 @@ app.post('/updateData', (req, res) => {
     });
 });
 
+/*******************************
+ ******** CATEGORY AREA *********
+ ******************************/
+
+ 
 /** Insert Category Data */
 app.post('/saveCatData', (req, res) => {
     var categoryCode = req.body.categorycode;
@@ -162,6 +171,9 @@ app.post('/updateCategory', (req, res) => {
     });
 });
 
+/*******************************
+ ******* SUB CATEGORY AREA ****
+ ******************************/
 
 /** Get Sub Category Data */
 app.get('/getSubCatData', (req, res) => {
@@ -173,22 +185,6 @@ app.get('/getSubCatData', (req, res) => {
         }
     });
 })
-
-
-/** Get User Data */
-app.get('/getUsers', (req, res) => {
-    var sql = `SELECT * FROM users`;
-    db.query(sql, (err, result) => {
-        if(err) {
-            throw err;
-        } else {
-            console.log(result);
-            res.send(result);
-        }
-    });
-});
-
-
 
 /** Save sub category data */
 app.post('/saveSubCategoryData', (req, res) => {
@@ -216,7 +212,7 @@ app.get('/editsubcategory/:id', (req, res) => {
         }
     });
 });
-/** Update Category Data */
+/** Update Sub Category Data */
 app.post('/updateSubCategory', (req, res) => {
     var id = req.body.id;
     var subcategory_name = req.body.subcategory_name;
@@ -232,3 +228,52 @@ app.post('/updateSubCategory', (req, res) => {
         }
     });
 });
+
+/** Delete Category */
+app.post('/deleteSubCategory', (req, res) => {
+    var id = req.body.id;
+    var sql = `DELETE FROM master_subcategory WHERE subcatid = ${id}`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+            var status = 'data gagal dihapus';
+            res.send(status);
+        } else {
+            var status = 'oke';
+            res.send(status)
+        }
+    })
+});
+/*******************************
+ ******* USER MANAGEMENT AREA ****
+ ******************************/
+
+/** Get User Data */
+app.get('/getUsers', (req, res) => {
+    var sql = `SELECT * FROM users`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+
+/*******************************
+ ******* INVOICE AREA ****
+ ******************************/
+
+ /** Grab all the invoice data */
+ app.get('/invoiceHistory', (req, res) => {
+     var sql = `SELECT * FROM invoice`;
+     db.query(sql, (err, result) => {
+         if(err){
+             throw err;
+         } else {
+             res.send(result);
+         }
+     });
+ })
