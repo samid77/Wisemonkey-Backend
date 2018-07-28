@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const reactConnection = require('cors');
+const fileUpload = require('express-fileupload');
 
 var app = express();
 
@@ -23,19 +24,38 @@ app.use(reactConnection());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+/** Initialize file upload */
+app.use(fileUpload());
+
 /** Establish a web server */
 app.listen(8003, (req, res) => {
     console.log('Server started at port 8003 ...');
 });
 
-/** Input data baru */
+/*******************************
+ ******** PRODUCT AREA *********
+ ******************************/
+
+/** Grab all the product data */
+app.get('/productlist', (req, res) => {
+    db.query(`SELECT * FROM product; SELECT * FROM master_category; SELECT * FROM master_subcategory`, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+/** Input data product */
 app.post('/saveData', (req, res) => {
     var productCode = req.body.productcode;
     var productName = req.body.productname;
     var productDescription = req.body.description;
     var productPrice = req.body.price;
+    var subCategoryID = req.body.subcategoryid;
 
-    var sql = `INSERT INTO product VALUES("${''}", "${productCode}", "${productName}", "${productDescription}", "${productPrice}", "${''}", "${''}", "${''}")`;
+    var sql = `INSERT INTO product VALUES("${''}", "${productCode}", "${productName}", "${productDescription}", "${productPrice}", "${''}", "${subCategoryID}", "${''}")`;
 
     db.query(sql, (err, result) => {
         if(err){
@@ -45,22 +65,6 @@ app.post('/saveData', (req, res) => {
         }
     });
 
-});
-
-/*******************************
- ******** PRODUCT AREA *********
- ******************************/
-
-/** Grab all the product data */
-app.get('/productlist', (req, res) => {
-    var sql = `SELECT * FROM product`;
-    db.query(sql, (err, result) => {
-        if(err){
-            throw err;
-        } else {
-            res.send(result);
-        }
-    });
 });
 
 /** Edit product data */
