@@ -69,7 +69,7 @@ app.get('/editproduct/:id', (req, res) => {
         }
     });
 })
-
+/** Update Product Data */
 app.post('/updateData', (req, res) => {
     var id = req.body.id;
     var productName = req.body.productname;
@@ -83,6 +83,78 @@ app.post('/updateData', (req, res) => {
             throw err;
         } else {
             res.send('Update berhasil');
+        }
+    });
+});
+
+/** Insert Category Data */
+app.post('/saveCatData', (req, res) => {
+    var categoryCode = req.body.categorycode;
+    var categoryName = req.body.categoryname;
+    var categoryDescription = req.body.categorydescription;
+
+    var sql = `INSERT INTO master_category VALUES ("${''}", "${categoryCode}", "${categoryName}", "${categoryDescription}", "${''}")`;
+
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send('Data berhasil diinput');
+        }
+    });
+})
+
+/** Grab Category Data */
+app.get('/getCatData', (req, res) => {
+    var sql = `SELECT * FROM master_category`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    });
+})
+/** Delete Category */
+app.post('/deleteCategory', (req, res) => {
+    var id = req.body.id;
+    var sql = `DELETE FROM master_category WHERE id = ${id}`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+            var status = 'data gagal dihapus';
+            res.send(status);
+        } else {
+            var status = 'oke';
+            res.send(status)
+        }
+    })
+});
+/** Edit category data */
+app.get('/editcategory/:id', (req, res) => {
+    var sql = `SELECT * FROM master_category WHERE id = ${req.params.id}`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    });
+})
+/** Update Product Data */
+app.post('/updateCategory', (req, res) => {
+    var id = req.body.id;
+    var category_code = req.body.category_code;
+    var category_name = req.body.category_name;
+    var description = req.body.description;
+
+    var queryUpdate = `UPDATE master_category SET category_code = "${category_code}", category_name = "${category_name}", description = "${description}" WHERE id = "${id}"`;
+    db.query(queryUpdate, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            var status = 'oke';
+            res.send(status);
         }
     });
 });
