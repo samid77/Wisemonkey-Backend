@@ -11,7 +11,8 @@ const db = mysql.createConnection({
     user: 'root',
     password: 'root',
     port: '8889',
-    database: 'wisemonkey'
+    database: 'wisemonkey',
+    multipleStatements: true,
 });
 db.connect();
 
@@ -164,8 +165,7 @@ app.post('/updateCategory', (req, res) => {
 
 /** Get Sub Category Data */
 app.get('/getSubCatData', (req, res) => {
-    var sql = `SELECT * FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id`;
-    db.query(sql, (err, result) => {
+    db.query(`SELECT * FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id;SELECT * FROM master_category`, (err, result) => {
         if(err){
             throw err;
         } else {
@@ -187,6 +187,24 @@ app.get('/getUsers', (req, res) => {
         }
     });
 });
+
+
+
+/** Save sub category data */
+app.post('/saveSubCategoryData', (req, res) => {
+    var subcategoryname = req.body.subcategoryname;
+    var categoryid = req.body.categoryid;
+    var sql = `INSERT INTO master_subcategory VALUES("${''}", "${subcategoryname}", "${categoryid}", "${''}")`;
+    db.query(sql , (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send('Data berhasil disimpan');
+        }
+    });
+})
+
+
 /** Edit sub category data */
 app.get('/editsubcategory/:id', (req, res) => {
     var sql = `SELECT * FROM master_subcategory INNER JOIN master_category ON master_category.id=master_subcategory.category_id WHERE subcatid = ${req.params.id}`;
