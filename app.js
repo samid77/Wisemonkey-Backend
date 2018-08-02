@@ -26,6 +26,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 /** Initialize file upload */
 app.use(fileUpload());
+app.use('/public', express.static(__dirname + '/public'));
 
 /** Establish a web server */
 app.listen(8003, (req, res) => {
@@ -38,7 +39,11 @@ app.listen(8003, (req, res) => {
 
 /** Grab all the product data */
 app.get('/productlist', (req, res) => {
-    db.query(`SELECT * FROM product; SELECT * FROM master_category; SELECT * FROM master_subcategory`, (err, result) => {
+    db.query(`SELECT * FROM product; SELECT * FROM master_category; SELECT * FROM master_subcategory; SELECT p.id, p.product_name,
+    COUNT(i.product_id) AS quantity
+    FROM product_item i 
+    INNER JOIN product AS p ON p.id = i.product_id
+    GROUP BY p.product_name`, (err, result) => {
         if(err){
             throw err;
         } else {
@@ -95,6 +100,22 @@ app.post('/updateData', (req, res) => {
         }
     });
 });
+
+/** Delete data produk */
+app.post('/deleteData', (req, res) => {
+    var id = req.body.id;
+    var sql = `DELETE FROM product WHERE id = "${id}"`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            var status = 'oke';
+            res.send(status);
+        }
+    });
+
+});
+
 
 /*******************************
  ******** CATEGORY AREA *********
@@ -280,4 +301,34 @@ app.get('/getUsers', (req, res) => {
              res.send(result);
          }
      });
- })
+ }) 
+
+ /*******************************
+ ******* PRODUCT ITEM AREA ****
+ ******************************/
+app.get('/itemlist', (req, res) => {
+    var sql = `SELECT * FROM product_item INNER JOIN product ON product.id = product_item.product_id`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            res.send(result);
+        }
+    })
+
+})
+
+ /** Test upload file */
+app.post('/uploadfile', (req, res) => {
+        var uploadedFile = req.files;
+        console.log(typeof(uploadedFile));
+        console.log(uploadedFile);
+    // var sql = `INSERT INTO testupload VALUES("${''}", "${''}", "${''}")`;
+    // db.query(sql, (err, result) => {
+    //     if(err) {
+    //         throw err;
+    //     } else {
+    //         res.send('Upload berhasil');
+    //     }
+    // })
+})
