@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const reactConnection = require('cors');
 const fileUpload = require('express-fileupload');
+const multer = require('multer');
 
 var app = express();
 
@@ -54,13 +55,13 @@ app.get('/productlist', (req, res) => {
 
 /** Input data product */
 app.post('/saveData', (req, res) => {
-    var productCode = req.body.productcode;
+    var KodeProduk = req.body.productcode;
     var productName = req.body.productname;
     var productDescription = req.body.description;
     var productPrice = req.body.price;
     var subCategoryID = req.body.subcategoryid;
 
-    var sql = `INSERT INTO product VALUES("${''}", "${productCode}", "${productName}", "${productDescription}", "${productPrice}", "${''}", "${subCategoryID}", "${''}")`;
+    var sql = `INSERT INTO product VALUES("${''}", "${KodeProduk}", "${productName}", "${productDescription}", "${productPrice}", "${''}", "${subCategoryID}", "${''}", "${''}")`;
 
     db.query(sql, (err, result) => {
         if(err){
@@ -202,7 +203,7 @@ app.post('/updateCategory', (req, res) => {
 
 /** Get Sub Category Data */
 app.get('/getSubCatData', (req, res) => {
-    db.query(`SELECT * FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id;SELECT * FROM master_category`, (err, result) => {
+    db.query(`SELECT * FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id; SELECT * FROM master_category`, (err, result) => {
         if(err){
             throw err;
         } else {
@@ -307,7 +308,7 @@ app.get('/getUsers', (req, res) => {
  ******* PRODUCT ITEM AREA ****
  ******************************/
 app.get('/itemlist', (req, res) => {
-    var sql = `SELECT * FROM product_item INNER JOIN product ON product.id = product_item.product_id`;
+    var sql = `SELECT * FROM product_item INNER JOIN product ON product.id = product_item.product_id; SELECT * FROM product`;
     db.query(sql, (err, result) => {
         if(err) {
             throw err;
@@ -319,16 +320,42 @@ app.get('/itemlist', (req, res) => {
 })
 
  /** Test upload file */
+const storage = multer.diskStorage({
+    destination: './files',
+    filename(req, file, cb) {
+        cb(null, `${new Date()}-${file.originalname}`);
+    },
+});
+const upload = multer({storage});
+
+
 app.post('/uploadfile', (req, res) => {
-        var uploadedFile = req.files;
-        console.log(typeof(uploadedFile));
-        console.log(uploadedFile);
-    // var sql = `INSERT INTO testupload VALUES("${''}", "${''}", "${''}")`;
-    // db.query(sql, (err, result) => {
-    //     if(err) {
-    //         throw err;
-    //     } else {
-    //         res.send('Upload berhasil');
-    //     }
-    // })
+    var fileName1 = req.files.file1.name;
+    var fileName2 = req.files.file2.name;
+    var fileName3 = req.files.file3.name;
+    var fileName4 = req.files.file4.name;
+    var testInput1 = req.body.tesinput1;
+    var testInput2 = req.body.testinput2;
+
+    if(req.files){
+        var file1 = req.files.file1;
+        var file2 = req.files.file2;
+        var file3 = req.files.file3;
+        var file4 = req.files.file4;
+        file1.mv('./files/'+fileName1);
+        file2.mv('./files/'+fileName2);
+        file3.mv('./files/'+fileName3);
+        file4.mv('./files/'+fileName4);
+
+        var sql = `INSERT INTO testupload VALUES("${''}", "${testInput1}", "${testInput2}", "${fileName1}", "${fileName2}", "${fileName3}", "${fileName4}", "${''}")`;
+        db.query(sql, (err, result) => {
+            if(err) {
+                throw err;
+            } else {
+                res.send('Upload success');
+            }
+        })
+
+    }
+
 })
