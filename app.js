@@ -4,8 +4,10 @@ const mysql = require('mysql');
 const reactConnection = require('cors');
 const fileUpload = require('express-fileupload');
 const multer = require('multer');
+const multipart = require('connect-multiparty');
 
 var app = express();
+var multipartMiddleware = multipart();
 
 /** Register the database and connect */
 const db = mysql.createConnection({
@@ -21,13 +23,16 @@ db.connect();
 /** Making the node accessible by React */
 app.use(reactConnection());
 
+/** Upload function initialization */
+app.use(fileUpload());
+
 /** Bodyparser middleware setup */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 /** Initialize file upload */
-app.use(fileUpload());
-app.use('/public', express.static(__dirname + '/public'));
+// app.use(fileUpload());
+// app.use('/public', express.static(__dirname + '/public'));
 
 /** Establish a web server */
 app.listen(8003, (req, res) => {
@@ -57,11 +62,48 @@ app.get('/productlist', (req, res) => {
 app.post('/saveData', (req, res) => {
     var KodeProduk = req.body.productcode;
     var productName = req.body.productname;
-    var productDescription = req.body.description;
-    var productPrice = req.body.price;
+    var productDescription = req.body.productdescription;
+    var productPrice = req.body.productprice;
     var subCategoryID = req.body.subcategoryid;
+    var fotoproduk1 = req.files.fotoproduk1.name;
+    var fotoproduk2 = req.files.fotoproduk2.name;
+    var fotoproduk3 = req.files.fotoproduk3.name;
+    var fotoproduk4 = req.files.fotoproduk4.name;
 
-    var sql = `INSERT INTO product VALUES("${''}", "${KodeProduk}", "${productName}", "${productDescription}", "${productPrice}", "${''}", "${subCategoryID}", "${''}", "${''}")`;
+    var datafile = req.files.fotoproduk1;
+    datafile.mv("./files/"+fotoproduk1, (error) => {
+        if(error){
+            throw error;
+        } else {
+            console.log('Upload file pertama success');
+        }
+    });
+    var datafile2 = req.files.fotoproduk2;
+    datafile2.mv("./files/"+fotoproduk2, (error) => {
+        if(error){
+            throw error;
+        } else {
+            console.log('Upload file kedua success');
+        }
+    });
+    var datafile3 = req.files.fotoproduk3;
+    datafile3.mv("./files/"+fotoproduk3, (error) => {
+        if(error){
+            throw error;
+        } else {
+            console.log('Upload file ketiga success');
+        }
+    });
+    var datafile4 = req.files.fotoproduk4;
+    datafile4.mv("./files/"+fotoproduk4, (error) => {
+        if(error){
+            throw error;
+        } else {
+            console.log('Upload file keempat success');
+        }
+    });
+
+    var sql = `INSERT INTO product VALUES("${''}", "${KodeProduk}", "${productName}", "${productDescription}", "${productPrice}", "${fotoproduk1}", "${fotoproduk2}", "${fotoproduk3}", "${fotoproduk4}", "${subCategoryID}", "${''}")`;
 
     db.query(sql, (err, result) => {
         if(err){
@@ -328,34 +370,205 @@ const storage = multer.diskStorage({
 });
 const upload = multer({storage});
 
+app.post('/uploadFile', (req, res) => {
+    if(req.files != undefined){
+        var inputsatu = req.body.testinput1;
+        var inputkedua = req.body.testinput2;
+        var namafile = req.files.filekesatu.name;
+        var namafile2 = req.files.filekedua.name;
+        var namafile3 = req.files.fileketiga.name;
+        var namafile4 = req.files.filekeempat.name;
+
+        var datafile = req.files.filekesatu;
+            datafile.mv("./files/"+namafile, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file pertama success');
+                }
+            });
+            var datafile2 = req.files.filekedua;
+            datafile2.mv("./files/"+namafile2, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file kedua success');
+                }
+            });
+            var datafile3 = req.files.fileketiga;
+            datafile3.mv("./files/"+namafile3, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file ketiga success');
+                }
+            });
+            var datafile4 = req.files.filekeempat;
+            datafile4.mv("./files/"+namafile4, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file keempat success');
+                }
+            });
+
+            var sql = `INSERT INTO testupload VALUES("${''}", "${inputsatu}", "${inputkedua}", "${namafile}", "${namafile2}", "${namafile3}", "${namafile4}", "${''}")`;
+            db.query(sql, (err, result) => {
+                if(err) {
+                    throw err;
+                } else {
+                    res.send('Upload berhasil');
+                }
+            });
+    }
+});
+
 
 app.post('/uploadfile', (req, res) => {
-    var fileName1 = req.files.file1.name;
-    var fileName2 = req.files.file2.name;
-    var fileName3 = req.files.file3.name;
-    var fileName4 = req.files.file4.name;
-    var testInput1 = req.body.tesinput1;
-    var testInput2 = req.body.testinput2;
+    if(req.files != undefined){
+        if(req.files.filekesatu != null && req.files.filekedua != null && req.files.fileketiga != null && req.files.keempat != null){
+            var inputsatu = req.body.testinput1;
+            var inputkedua = req.body.testinput2;
+            var namafile = req.files.filekesatu.name;
+            var namafile2 = req.files.filekedua.name;
+            var namafile3 = req.files.fileketiga.name;
+            var namafile4 = req.files.filekeempat.name;
 
-    if(req.files){
-        var file1 = req.files.file1;
-        var file2 = req.files.file2;
-        var file3 = req.files.file3;
-        var file4 = req.files.file4;
-        file1.mv('./files/'+fileName1);
-        file2.mv('./files/'+fileName2);
-        file3.mv('./files/'+fileName3);
-        file4.mv('./files/'+fileName4);
+            var datafile = req.files.filekesatu;
+            datafile.mv("./files/"+namafile, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file pertama success');
+                }
+            });
+            var datafile2 = req.files.filekedua;
+            datafile2.mv("./files/"+namafile2, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file kedua success');
+                }
+            });
+            var datafile3 = req.files.fileketiga;
+            datafile3.mv("./files/"+namafile3, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file ketiga success');
+                }
+            });
+            var datafile4 = req.files.filekeempat;
+            datafile4.mv("./files/"+namafile4, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file keempat success');
+                }
+            });
 
-        var sql = `INSERT INTO testupload VALUES("${''}", "${testInput1}", "${testInput2}", "${fileName1}", "${fileName2}", "${fileName3}", "${fileName4}", "${''}")`;
-        db.query(sql, (err, result) => {
-            if(err) {
-                throw err;
-            } else {
-                res.send('Upload success');
-            }
-        })
+            var sql = `INSERT INTO testupload VALUES("${''}", "${inputsatu}", "${inputkedua}", "${namafile}", "${namafile2}", "${namafile3}", "${namafile4}", "${''}")`;
+            db.query(sql, (err, result) => {
+                if(err) {
+                    throw err;
+                } else {
+                    res.send('Upload berhasil');
+                }
+            });
+        } else if(req.files.filekesatu != null && req.files.filekedua != null && req.files.fileketiga != null){
+            var inputsatu = req.body.testinput1;
+            var inputkedua = req.body.testinput2;
+            var namafile = req.files.filekesatu.name;
+            var namafile2 = req.files.filekedua.name;
+            var namafile3 = req.files.fileketiga.name;
 
+            var datafile = req.files.filekesatu;
+            datafile.mv("./files/"+namafile, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file pertama success');
+                }
+            });
+            var datafile2 = req.files.filekedua;
+            datafile2.mv("./files/"+namafile2, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file kedua success');
+                }
+            });
+            var datafile3 = req.files.fileketiga;
+            datafile3.mv("./files/"+namafile3, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file ketiga success');
+                }
+            });
+
+            var sql = `INSERT INTO testupload VALUES("${''}", "${inputsatu}", "${inputkedua}", "${namafile}", "${namafile2}", "${namafile3}", "${''}", "${''}")`;
+            db.query(sql, (err, result) => {
+                if(err) {
+                    throw err;
+                } else {
+                    res.send('Upload berhasil');
+                }
+            });
+        } 
+        else if(req.files.filekesatu != null && req.files.filekedua != null){
+            var inputsatu = req.body.testinput1;
+            var inputkedua = req.body.testinput2;
+            var namafile = req.files.filekesatu.name;
+            var namafile2 = req.files.filekedua.name;
+
+            var datafile = req.files.filekesatu;
+            datafile.mv("./files/"+namafile, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file pertama success');
+                }
+            });
+            var datafile2 = req.files.filekedua;
+            datafile2.mv("./files/"+namafile2, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file kedua success');
+                }
+            });
+
+            var sql = `INSERT INTO testupload VALUES("${''}", "${inputsatu}", "${inputkedua}", "${namafile}", "${namafile2}", "${''}", "${''}", "${''}")`;
+            db.query(sql, (err, result) => {
+                if(err) {
+                    throw err;
+                } else {
+                    res.send('Upload berhasil');
+                }
+            });
+        } else if(req.files.filekesatu != null){
+            var inputsatu = req.body.testinput1;
+            var inputkedua = req.body.testinput2;
+            var namafile = req.files.filekesatu.name;
+
+            var datafile = req.files.filekesatu;
+            datafile.mv("./files/"+namafile, (error) => {
+                if(error){
+                    throw error;
+                } else {
+                    console.log('Upload file pertama success');
+                }
+            });
+
+            var sql = `INSERT INTO testupload VALUES("${''}", "${inputsatu}", "${inputkedua}", "${namafile}", "${''}", "${''}", "${''}", "${''}")`;
+            db.query(sql, (err, result) => {
+                if(err) {
+                    throw err;
+                } else {
+                    res.send('Upload berhasil');
+                }
+            });
+        }
     }
-
 })
