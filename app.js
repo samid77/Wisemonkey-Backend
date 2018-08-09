@@ -46,7 +46,7 @@ app.post('/login', (req, res) => {
 
 });
 app.post('/register', (req, res) => {
-    
+
 });
 
 
@@ -120,7 +120,8 @@ app.post('/saveData', (req, res) => {
         if(err){
             throw err;
         } else {
-            res.end('Data berhasil disimpan');
+            var status = 'oke';
+            res.status(200).send(status);
         }
     });
 
@@ -144,6 +145,12 @@ app.post('/updateData', (req, res) => {
     var productCode = req.body.productcode;
     var productPrice = req.body.price;
     var productDescription = req.body.description;
+
+    if(req.files){
+
+    } else {
+        
+    }
 
     var queryUpdate = `UPDATE product SET product_name = "${productName}", product_code = "${productCode}", price = "${productPrice}", description = "${productDescription}" WHERE id = "${id}"`;
     db.query(queryUpdate, (err, result) => {
