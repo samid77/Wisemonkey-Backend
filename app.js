@@ -441,6 +441,13 @@ app.post('/uploadFile', (req, res) => {
     }
 });
 
+app.post('/additem', (req, res) => {
+    var itemNumber = req.body.itemNumber;
+    for(var i=0; i <= itemNumber; i++){
+        
+    }
+});
+
 
 app.post('/uploadfile', (req, res) => {
     if(req.files != undefined){
